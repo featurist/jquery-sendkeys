@@ -1,0 +1,21 @@
+{
+  "name": "jquery-sendkeys",
+  "version": "1.0.0",
+  "description": "jQuery plugin for simulating key presses on HTML inputs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "jquery",
+    "input",
+    "sendkeys",
+    "keypress",
+    "keyup",
+    "keydown",
+    "keyboard",
+    "testing"
+  ],
+  "author": "Tim Macfarlane <timmacfarlane@gmail.com>",
+  "license": "MIT"
+}
