@@ -1,6 +1,6 @@
 # jQuery sendkeys
 
-This is a npm and browserify compatible version of [jQuery.sendkeys](http://bililite.com/blog/2011/01/23/improved-sendkeys/). It's very useful for testing HTML pages by simulating key presses on text inputs and textareas.
+This is an NPM and browserify compatible version of [jQuery.sendkeys](http://bililite.com/blog/2011/01/23/improved-sendkeys/). It's very useful for testing HTML pages by simulating key presses on text inputs and textareas.
 
 # how to use?
 
