@@ -25,6 +25,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
+var jQuery = require('jquery');
+var bililiteRange = require('./bililiteRange');
+
 (function($){
 
 $.fn.sendkeys = function (x){

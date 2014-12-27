@@ -37,7 +37,7 @@ n.normalize();
 var canNormalize = n.firstChild.length == 3;
 
 
-bililiteRange = function(el, debug){
+var bililiteRange = module.exports = function(el, debug){
 	var ret;
 	if (debug){
 		ret = new NothingRange(); // Easier to force it to use the no-selection type than to try to find an old browser
