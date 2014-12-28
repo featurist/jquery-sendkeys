@@ -20,5 +20,13 @@
     "testing"
   ],
   "author": "Tim Macfarlane <timmacfarlane@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/featurist/jquery-sendkeys.git"
+  },
+  "bugs": {
+    "url": "https://github.com/featurist/jquery-sendkeys/issues"
+  },
+  "homepage": "https://github.com/featurist/jquery-sendkeys"
 }
