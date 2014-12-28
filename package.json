@@ -1,6 +1,6 @@
 {
   "name": "jquery-sendkeys",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "jQuery plugin for simulating key presses on HTML inputs",
   "main": "index.js",
   "scripts": {
