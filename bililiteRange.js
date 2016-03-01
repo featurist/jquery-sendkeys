@@ -1,6 +1,6 @@
 // Cross-broswer implementation of text ranges and selections
 // documentation: http://bililite.com/blog/2011/01/17/cross-browser-text-ranges-and-selections/
-// Version: 2.5.1
+// Version: 2.6
 // Copyright (c) 2013 Daniel Wachsstock
 // MIT license:
 // Permission is hereby granted, free of charge, to any person
@@ -116,7 +116,7 @@ var bililiteRange = module.exports = function(el, debug){
 		// give IE8 a chance. Note that this still fails in IE11, which has has oninput on contenteditable elements but does not 
 		// dispatch input events. See http://connect.microsoft.com/IE/feedback/details/794285/ie10-11-input-event-does-not-fire-on-div-with-contenteditable-set
 		// TODO: revisit this when I have IE11 running on my development machine
-		var inputhack = function() {ret.dispatch({type: 'input'}) };
+		var inputhack = function() {ret.dispatch({type: 'input', bubbles: true}) };
 		ret.listen('keyup', inputhack);
 		ret.listen('cut', inputhack);
 		ret.listen('paste', inputhack);
@@ -159,11 +159,11 @@ Range.prototype = {
 	},
 	select: function(){
 		var b = this._el.bililiteRangeSelection = this.bounds();
-		if (this._el == document.activeElement){
+		if (this._el === this._doc.activeElement){
 			// only actually select if this element is active!
 			this._nativeSelect(this._nativeRange(b));
 		}
-		this.dispatch({type: 'select'});
+		this.dispatch({type: 'select', bubbles: true});
 		return this; // allow for chaining
 	},
 	text: function(text, select){
@@ -171,7 +171,8 @@ Range.prototype = {
 			var bounds = this.bounds(), el = this._el;
 			// signal the input per DOM 3 input events, http://www.w3.org/TR/DOM-Level-3-Events/#h4_events-inputevents
 			// we add another field, bounds, which are the bounds of the original text before being changed.
-			this.dispatch({type: 'beforeinput', data: text, bounds: bounds});
+			this.dispatch({type: 'beforeinput', bubbles: true,
+			               data: text, bounds: bounds});
 			this._nativeSetText(text, this._nativeRange(bounds));
 			if (select == 'start'){
 				this.bounds ([bounds[0], bounds[0]]);
@@ -180,7 +181,8 @@ Range.prototype = {
 			}else if (select == 'all'){
 				this.bounds ([bounds[0], bounds[0]+text.length]);
 			}
-			this.dispatch({type: 'input', data: text, bounds: bounds});
+			this.dispatch({type: 'input', bubbles: true,
+			               data: text, bounds: bounds});
 			return this; // allow for chaining
 		}else{
 			return this._nativeGetText(this._nativeRange(this.bounds())).replace(/\r/g, ''); // need to correct for IE's CrLf weirdness
@@ -199,11 +201,11 @@ Range.prototype = {
 			if (/^{[^}]*}$/.test(c)) c = c.slice(1,-1);	// deal with unknown {key}s
 			for (var i =0; i < c.length; ++i){
 				var x = c.charCodeAt(i);
-				rng.dispatch({type: 'keypress', keyCode: x, which: x, charCode: x});
+				rng.dispatch({type: 'keypress', bubbles: true, keyCode: x, which: x, charCode: x});
 			}
 			rng.text(c, 'end');
 		}
-		text.replace(/{[^}]*}|[^{]+/g, function(part){
+		text.replace(/{[^}]*}|[^{]+|{/g, function(part){
 			(bililiteRange.sendkeys[part] || simplechar)(self, part, simplechar);
 		});
 		this.bounds(this.data().sendkeysBounds);
@@ -241,9 +243,9 @@ Range.prototype = {
 	},
 	all: function(text){
 		if (arguments.length){
-			this.dispatch ({type: 'beforeinput', data: text});
+			this.dispatch ({type: 'beforeinput', bubbles: true, data: text});
 			this._el[this._textProp] = text;
-			this.dispatch ({type: 'input', data: text});
+			this.dispatch ({type: 'input', bubbles: true, data: text});
 			return this;
 		}else{
 			return this._el[this._textProp].replace(/\r/g, ''); // need to correct for IE's CrLf weirdness
@@ -312,7 +314,7 @@ bililiteRange.bounds = {
 	start: function () { return [0,0] },
 	end: function () { return [this.length(), this.length()] },
 	selection: function(){
-		if (this._el == document.activeElement){
+		if (this._el === this._doc.activeElement){
 			this.bounds ('all'); // first select the whole thing for constraining
 			return this._nativeSelection();
 		}else{
@@ -324,8 +326,7 @@ bililiteRange.bounds = {
 // sendkeys functions
 bililiteRange.sendkeys = {
 	'{enter}': function (rng){
-		var x = '\n'.charCodeAt(0);
-		rng.dispatch({type: 'keypress', keyCode: x, which: x, charCode: x});
+		rng.dispatch({type: 'keypress', bubbles: true, keyCode: '\n', which: '\n', charCode: '\n'});
 		rng.insertEOL();
 	},
 	'{tab}': function (rng, c, simplechar){
@@ -362,7 +363,7 @@ bililiteRange.sendkeys = {
 		var s = rng.data().sendkeysOriginalText;
 		for (var i =0; i < s.length; ++i){
 			var x = s.charCodeAt(i);
-			rng.dispatch({type: 'keypress', keyCode: x, which: x, charCode: x});
+			rng.dispatch({type: 'keypress', bubbles: true, keyCode: x, which: x, charCode: x});
 		}
 		rng.text(s, 'end');
 	},
@@ -370,6 +371,12 @@ bililiteRange.sendkeys = {
 		rng.data().sendkeysBounds = rng.bounds();
 	}
 };
+// Synonyms from the proposed DOM standard (http://www.w3.org/TR/DOM-Level-3-Events-key/)
+bililiteRange.sendkeys['{Enter}'] = bililiteRange.sendkeys['{enter}'];
+bililiteRange.sendkeys['{Backspace}'] = bililiteRange.sendkeys['{backspace}'];
+bililiteRange.sendkeys['{Delete}'] = bililiteRange.sendkeys['{del}'];
+bililiteRange.sendkeys['{ArrowRight}'] = bililiteRange.sendkeys['{rightarrow}'];
+bililiteRange.sendkeys['{ArrowLeft}'] = bililiteRange.sendkeys['{leftarrow}'];
 
 function IERange(){}
 IERange.prototype = new Range();
